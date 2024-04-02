@@ -1,0 +1,43 @@
+{
+  "name": "postmate-plus",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "postmate-plus",
+  "author": "luvletterldl",
+  "homepage": "https://github.com/luvletterldl/postmate-plus#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luvletterldl/postmate-plus.git",
+    "directory": "packages/postmate-plus"
+  },
+  "bugs": {
+    "url": "https://github.com/luvletterldl/postmate-plus/issues"
+  },
+  "keywords": [
+    "postMessage",
+    "secure",
+    "handshake",
+    "promise",
+    "iframes",
+    "pci",
+    "security"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2"
+  }
+}

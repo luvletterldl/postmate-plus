@@ -1,84 +1,69 @@
 {
-  "name": "postmate",
-  "version": "1.6.0",
-  "description": "A powerful, simple, promise-based postMessage library",
-  "main": "build/postmate.js",
-  "module": "build/postmate.es.js",
-  "unpkg": "build/postmate.min.js",
-  "files": [
-    "build",
-    "src"
-  ],
-  "devDependencies": {
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.51",
-    "@babel/preset-env": "^7.0.0-beta.51",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.0.0",
-    "chai": "^4.1.2",
-    "codecov": "^3.0.2",
-    "connect": "^3.4.1",
-    "conventional-changelog-cli": "^2.0.5",
-    "es-check": "^5.0.0",
-    "eslint": "^6.0.0",
-    "eslint-config-dollarshaveclub": "^3.0.4",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-standard": "^4.0.1",
-    "gulp": "4.0.2",
-    "gulp-mocha-phantomjs": "0.12.2",
-    "gzip-size": "^5.0.0",
-    "jest": "^22.0.0",
-    "mocha": "^7.0.1",
-    "mocha-phantomjs": "^4.1.0",
-    "nyc": "^15.0.0",
-    "regenerator-runtime": "^0.13.0",
-    "rollup": "^1.21.4",
-    "rollup-plugin-babel": "^4.0.0-beta.0",
-    "rollup-plugin-replace": "^2.0.0",
-    "rollup-plugin-uglify": "^6.0.0",
-    "rsvp": "^4.8.1",
-    "serve-static": "^1.11.1",
-    "uglify-js": "^3.6.3",
-    "vinyl-source-stream": "^2.0.0"
-  },
+  "name": "@postmate-plus/monorepo",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@8.15.6",
+  "author": "luvletterldl",
   "scripts": {
-    "eslint": "eslint . --fix",
-    "eslint:ci": "eslint .",
-    "test": "npm run test:unit && npm run test:acceptance && npm run test:es-check",
-    "test:es-check": "es-check es5 build/postmate.min.js",
-    "test:unit": "jest --coverage",
-    "test:acceptance": "gulp test",
-    "build": "npm run build:dist && npm run build:readme",
-    "build:readme": "node ./scripts/update-readme.js",
-    "build:dist": "rollup --config configs/rollup.config.js",
-    "postpublish": "git tag $npm_package_version && git push origin --tags"
+    "build": "pnpm -r build",
+    "dev": "cd packages/docs && pnpm dev",
+    "build:doc": "pnpm -r build:doc",
+    "build:iframe": "cd packages/postmate-plus && pnpm build",
+    "lint": "eslint .",
+    "format": "eslint . --fix",
+    "publish": "pnpm build && pnpm -r publish",
+    "release": "bumpp -r",
+    "up": "taze major -I -r",
+    "postinstall": "npx simple-git-hooks"
   },
-  "jest": {
-    "testRegex": "./test/unit/.*.js$",
-    "testURL": "http://localhost/"
+  "dependencies": {
+    "@vueuse/head": "^2.0.0",
+    "md-powerpack": "^1.0.3",
+    "shiki": "^1.2.3",
+    "vite-plugin-md": "^0.21.5",
+    "vite-plugin-vue-devtools": "^7.0.25"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dollarshaveclub/postmate.git"
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.12.1",
+    "@iconify-json/carbon": "^1.1.31",
+    "@swc/core": "^1.4.11",
+    "@types/node": "^20.12.2",
+    "@types/ws": "^8.5.10",
+    "@unocss/reset": "^0.58.9",
+    "@unocss/transformer-directives": "^0.58.9",
+    "@unocss/transformer-variant-group": "^0.58.9",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.5",
+    "@vueuse/core": "^10.9.0",
+    "@vueuse/shared": "^10.9.0",
+    "@webcontainer/api": "^1.1.9",
+    "bumpp": "^9.4.0",
+    "element-plus": "^2.6.3",
+    "eslint": "^8.57.0",
+    "jsdom": "^24.0.0",
+    "lint-staged": "^15.2.2",
+    "pnpm": "^8.15.6",
+    "postmate-plus": "workspace:*",
+    "simple-git-hooks": "^2.11.1",
+    "taze": "^0.13.3",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.3",
+    "unocss": "^0.58.9",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.26.0",
+    "vite": "^5.2.7",
+    "vite-plugin-pages": "^0.32.1",
+    "vitest": "^1.4.0",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0",
+    "vue-tsc": "^2.0.7"
   },
-  "keywords": [
-    "postMessage",
-    "secure",
-    "handshake",
-    "promise",
-    "iframes",
-    "pci",
-    "security"
-  ],
-  "author": "Jacob Kelley <jakie8@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dollarshaveclub/postmate/issues"
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
   },
-  "homepage": "https://github.com/dollarshaveclub/postmate",
-  "browserslist": [
-    "defaults",
-    "ie >= 11"
-  ]
+  "lint-staged": {
+    "*": "eslint --fix"
+  }
 }
