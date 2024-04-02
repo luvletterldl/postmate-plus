@@ -1,0 +1,184 @@
+# install
+```bash
+pnpm i postmate-plus
+```
+
+### 父页面
+```js
+<script setup lang="ts">
+import type { ParentAPI } from 'postmate-plus'
+import { initParentPage } from 'postmate-plus'
+
+const targetRef = ref()
+
+const parentPageData = ref('send data to child')
+
+const child = ref<ParentAPI>()
+
+// 初始化子页面
+async function parentPage() {
+  child.value = await initParentPage({
+    // 存放iframe的容器
+    container: targetRef.value,
+    // iframe的url
+    url: `${location.origin}/documents/common-mq/#/inside`,
+    // 可选参数，设置iframe的名称
+    name: 'my-iframe-name',
+    // 可选参数，给iframe设置class
+    classListArray: ['myClass'],
+    // 暴露给子异步的方法调用，用于子传递给父数据，父处理完成返回给子结果
+    model: {
+      asyncPost: (data: any) => {
+        // 这里不一定非要返回Promise，这里只是作为示例演示异步效果
+        return new Promise((resolve) => {
+          const info = `Sub Post: parent received data from child: ${data}`
+          ElMessage.success(info)
+          console.log(info)
+          setTimeout(() => {
+            resolve(`parent resolve data to child ${data}`)
+          }, 3000)
+        })
+      },
+    }
+  })
+  child.value.on('some-event', (e: unknown) => ElMessage.success(`子页面触发父页面定义的事件，收到数据${e}`))
+}
+
+// 调用子页面提供的方法
+function callIframe() {
+  ElMessage.success(`父页面调用子页面提供的方法，发送数据${parentPageData.value}`)
+  child.value!.call('sayHi', parentPageData.value)
+}
+
+function postIframe() {
+  child.value!.post('asyncData', parentPageData.value).then((res: unknown) => {
+    const info = `Post Received From Child: ${res}`
+    ElMessage.success(info)
+    console.log(info)
+  })
+}
+
+// 获取子页面的数据
+function getChildData() {
+  child.value!.get('data').then((res: unknown) => {
+    const info = `get child data: ${res}`
+    ElMessage.success(info)
+    console.log(info)
+  })
+}
+
+// 销毁子页面
+function destroyIframe() {
+  child.value!.destroy()
+}
+</script>
+
+<template>
+  <main p-12px>
+    <p text="3xl red">
+      Outside 外层
+    </p>
+    <div flex ic gap-12px>
+      <el-button @click="parentPage">
+        初始化
+      </el-button>
+      <el-button @click="callIframe">
+        调用iframe方法 call
+      </el-button>
+      <el-button @click="postIframe">
+        调用iframe方法 post <div ml-3 i-carbon:update-now />
+      </el-button>
+      <el-button @click="getChildData">
+        获取iframe数据 get <div ml-3 i-carbon:update-now />
+      </el-button>
+      <el-button @click="destroyIframe">
+        destroyIframe
+      </el-button>
+      <el-form inline>
+        <el-form-item w-400px label="发送给子页面的数据">
+          <el-input v-model="parentPageData" placeholder="请输入要发送给子页面的数据" />
+        </el-form-item>
+      </el-form>
+    </div>
+    <div ref="targetRef" rounded overflow-hidden mx-5vw my-6 w-90vw h-150px />
+  </main>
+</template>
+```
+
+### 子页面（iframe）
+```js
+<script setup lang="ts">
+import { initSubPage } from 'postmate-plus'
+import type { ChildAPI } from 'postmate-plus'
+
+const subPageData = ref('data from child')
+const parent = ref<ChildAPI>()
+
+function sayHi(e: unknown) {
+  ElMessage.success(`父页面调用子页面方法，传递的数据：${e}`)
+}
+
+async function subPage() {
+  parent.value = await initSubPage({
+    // 提供给父页面的可获取的数据和方法，名称不限，自行和父级约定即可
+    model: {
+      data: () => {
+        // 这里不一定非要返回Promise，这里只是作为示例演示异步效果
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(subPageData.value)
+          }, 2000)
+        })
+      },
+      asyncData: (data: any) => {
+        const info = `Post: child received data from parent: ${JSON.stringify(data)}`
+        ElMessage.success(info)
+        // 这里不一定非要返回Promise，这里只是作为示例演示异步效果
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(subPageData.value)
+          }, 2000)
+        })
+      },
+      sayHi,
+    },
+  })
+}
+
+function postParent() {
+  ElMessage.success(`触发父页面on的事件，发送数据${subPageData.value}`)
+  parent.value!.emit('some-event', subPageData.value)
+}
+
+function postAsyncParent() {
+  parent.value!.post('asyncSubPost', subPageData.value).then((res: unknown) => {
+    const result = `Sub Post Received From Parent: ${res}`
+    ElMessage.success(result)
+    console.log(result)
+  })
+}
+
+subPage()
+</script>
+
+<template>
+  <main w-full h-150px p-3 rounded>
+    <p text="3xl red">
+      Inside iframe
+    </p>
+    <div flex ic gap-14px>
+      <el-button @click="postParent">
+        抛出事件 emit
+      </el-button>
+      <el-button @click="postAsyncParent">
+        抛出事件 post <div ml-3 i-carbon:update-now />
+      </el-button>
+      <el-form inline>
+        <el-form-item w-400px label="发送给父页面的数据">
+          <el-input v-model="subPageData" placeholder="请输入要发送给父页面的数据" />
+        </el-form-item>
+      </el-form>
+    </div>
+  </main>
+</template>
+```
